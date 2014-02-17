@@ -50,7 +50,7 @@ import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
-public class FabricTestSupport extends FuseTestSupport {
+public class FabricTestSupport extends FuseFeaturesTestSupport {
 
     public static final String FABRIC_ITEST_GROUP_ID = "FABRIC_ITEST_GROUP_ID";
     public static final String FABRIC_ITEST_ARTIFACT_ID = "FABRIC_ITEST_ARTIFACT_ID";
