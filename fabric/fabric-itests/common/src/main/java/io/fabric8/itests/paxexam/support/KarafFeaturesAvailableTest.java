@@ -32,7 +32,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 public class KarafFeaturesAvailableTest extends FabricTestSupport {
 
     @Test
-    @Ignore
     public void testFeatures() throws Exception {
         checkAllNotInstalledFeatures();
     }

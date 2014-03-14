@@ -43,7 +43,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.Function;
 import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
-import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
+import org.fusesource.tooling.testing.pax.exam.karaf.FuseFeaturesTestSupport;
 import org.junit.Assert;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.MavenUtils;

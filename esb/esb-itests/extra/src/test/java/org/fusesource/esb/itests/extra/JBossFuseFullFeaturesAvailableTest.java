@@ -16,6 +16,7 @@
  */
 package org.fusesource.esb.itests.extra;
 
+import org.apache.karaf.tooling.exam.options.KarafDistributionOption;
 import org.fusesource.esb.itests.pax.exam.karaf.EsbTestSupport;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,7 +34,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 public class JBossFuseFullFeaturesAvailableTest extends EsbTestSupport {
 
     @Test
-    @Ignore
     public void testFeatures() throws Exception {
         checkAllNotInstalledFeatures();
     }
@@ -42,6 +42,7 @@ public class JBossFuseFullFeaturesAvailableTest extends EsbTestSupport {
     public Option[] config() {
         return new Option[]{
             new DefaultCompositeOption(esbDistributionConfiguration("jboss-fuse-full")),
+//            KarafDistributionOption.debugConfiguration("9999", true),
             new VMOption("-XX:MaxPermSize=512M"),
         };
     }

@@ -33,7 +33,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 public class JBossFuseMediumFeaturesAvailableTest extends EsbTestSupport {
 
     @Test
-    @Ignore
     public void testFeatures() throws Exception {
         checkAllNotInstalledFeatures();
     }

@@ -17,16 +17,22 @@
 
 package org.fusesource.tooling.testing.pax.exam.karaf;
 
+import java.io.File;
+import java.io.PrintStream;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.osgi.framework.Bundle;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -70,12 +76,34 @@ public class FuseFeaturesTestSupport extends FuseTestSupport {
      * @throws Exception
      */
     protected void checkAllNotInstalledFeatures() throws Exception {
-        assertThat(this.featuresService, notNullValue());
+        File logFile = new File(System.getProperty("user.dir") + "/data/log", "test.log");
+        logFile.getParentFile().mkdir();
+        PrintStream log = new PrintStream(logFile);
+
+        log.println("=== Bundles installed at start ===");
+        Map<String, Bundle> bundles = new HashMap<String, Bundle>();
+        for (Bundle b: this.bundleContext.getBundles()) {
+            log.println("-- Bundle: " + b.getLocation());
+            bundles.put(b.getLocation(), b);
+        }
+
+        Set<String> bundlesWithoutFeatures = new HashSet<String>(bundles.keySet());
+        log.println("=== Features installed at start ===");
         Set<String> installedFeatures = new HashSet<String>();
         for (Feature f: this.featuresService.listInstalledFeatures()) {
-            System.err.println("Boot-time installed feature: " + f.getId());
+            log.println("Boot-time installed feature: " + f.getId());
+            for (BundleInfo bi: f.getBundles()) {
+                log.println("-- Bundle: " + bi.getLocation());
+                bundlesWithoutFeatures.remove(bi.getLocation());
+            }
             installedFeatures.add(f.getName() + "/" + f.getVersion());
         }
+
+        log.println("=== Bundles installed at start, which are not part of any feature ===");
+        for (String bl: bundlesWithoutFeatures) {
+            log.println("-- Bundle: " + bl);
+        }
+
         List<String> exceptions = new LinkedList<String>();
         Feature[] features = this.featuresService.listFeatures();
         int fn = 0;
@@ -86,20 +114,33 @@ public class FuseFeaturesTestSupport extends FuseTestSupport {
                 continue;
             }
             try {
-                System.err.println("Feature (" + fn + "/" + fcount + "): " + f.getId());
+                log.println("Feature (" + fn + "/" + fcount + "): " + f.getId());
                 this.featuresService.installFeature(f, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles/*, FeaturesService.Option.Verbose*/));
-//                if (!criticalFeatures.contains(f.getName()) && !f.getName().contains("pax") && !f.getName().startsWith("activemq")
-//                    && !f.getName().startsWith("spring") && !f.getName().contains("fabric")) {
-//                    this.featuresService.uninstallFeature(f.getName(), f.getVersion());
-//                }
+                List<String> importantBundles = new LinkedList<String>();
+                boolean uninstall = true;
+                for (BundleInfo bi: f.getBundles()) {
+                    if (bundlesWithoutFeatures.contains(bi.getLocation())) {
+                        uninstall = false;
+                        importantBundles.add(bi.getLocation());
+                    }
+                }
+                if (uninstall) {
+                    this.featuresService.uninstallFeature(f.getName(), f.getVersion(), EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles/*, FeaturesService.Option.Verbose*/));
+                } else {
+                    log.println("Feature " + f.getId() + " *won't* be uninstalled because it contains important bundles:");
+                    for (String ib: importantBundles) {
+                        log.println(">> " + ib);
+                    }
+                }
             } catch (Exception e) {
-                System.err.println("Feature (un)installation error: " + e.getMessage());
+                log.println("Feature (un)installation error: " + e.getMessage());
                 exceptions.add("=======\nfeature: " + f.getName() + "/" + f.getVersion() + "\n " + e.getMessage());
             }
         }
         for (String e: exceptions) {
-            System.err.println(e);
+            log.println(e);
         }
+        log.close();
         assertThat("There should be no feature installation exceptions", exceptions.size(), is(0));
     }
 

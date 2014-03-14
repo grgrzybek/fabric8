@@ -198,6 +198,20 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     }
 
     @Override
+    public void uninstallFeature(String s,EnumSet<Option> opts) throws Exception {
+        unsupportedUninstallFeature(s);
+    }
+
+    @Override
+    public void uninstallFeature(String s, String s2,EnumSet<Option> opts) throws Exception {
+        String featureName = s;
+        if (s2 != null && s2.equals("0.0.0")) {
+            featureName = s + "/" + s2;
+        }
+        unsupportedUninstallFeature(featureName);
+    }
+
+    @Override
     public void uninstallFeature(String s) throws Exception {
         unsupportedUninstallFeature(s);
     }
